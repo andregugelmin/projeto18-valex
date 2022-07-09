@@ -1,8 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
+import dayjs from 'dayjs';
 import {
+    findById,
     findByTypeAndEmployeeId,
     TransactionTypes,
 } from '../repositories/cardRepository.js';
+import { expirationDateObj } from '../services/cardsService.js';
+import { decryptCVC } from '../utils/encryptionUtils.js';
 
 export async function checkEmployeeHasCard(
     req: Request,
@@ -18,6 +22,80 @@ export async function checkEmployeeHasCard(
         throw {
             status: 409,
             message: `Employee already has a ${cardType} card`,
+        };
+    }
+
+    next();
+}
+
+export async function checkCardIsRegistered(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    const cardId: number = req.body.cardId;
+
+    const card = await findById(cardId);
+
+    if (!card) {
+        throw {
+            status: 404,
+            message: `Card not found`,
+        };
+    }
+
+    res.locals.card = card;
+
+    next();
+}
+
+export function checkCardIsExpired(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    const { card } = res.locals;
+    const expirationDate = expirationDateObj(card.expirationDate);
+
+    if (dayjs().isAfter(expirationDate)) {
+        throw {
+            status: 412,
+            message: `Card is expired`,
+        };
+    }
+
+    next();
+}
+
+export function checkCardIsActive(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    const { card } = res.locals;
+
+    if (card.password) {
+        throw {
+            status: 412,
+            message: `Card is already active`,
+        };
+    }
+
+    next();
+}
+
+export function validateCardCVC(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    const card: { securityCode: string } = res.locals.card;
+    const { securityCode }: { securityCode: string } = req.body;
+
+    if (decryptCVC(card.securityCode) != securityCode) {
+        throw {
+            status: 401,
+            message: `Wrong security code`,
         };
     }
 

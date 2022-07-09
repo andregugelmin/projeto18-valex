@@ -1,6 +1,12 @@
 import { faker } from '@faker-js/faker';
-import { insert, TransactionTypes } from '../repositories/cardRepository.js';
-import { encryptCVC } from '../utils/encryptionUtils.js';
+import dayjs from 'dayjs';
+import {
+    CardUpdateData,
+    insert,
+    TransactionTypes,
+    update,
+} from '../repositories/cardRepository.js';
+import { encryptCVC, encryptPassword } from '../utils/encryptionUtils.js';
 import {
     formattedEmployeeName,
     formattedExpirationDate,
@@ -31,4 +37,17 @@ export async function insertCardInDatabase(
         isBlocked: false,
         type,
     });
+}
+
+export function expirationDateObj(date: string) {
+    const cardDateArray = date.split('/');
+    const expirationDate = dayjs(`${cardDateArray[0]}/31/${cardDateArray[1]}`);
+    return expirationDate;
+}
+
+export async function updatePasswordCard(cardId: number, password: string) {
+    const encryptedPasswordData: CardUpdateData = {
+        password: encryptPassword(password),
+    };
+    await update(cardId, encryptedPasswordData);
 }
