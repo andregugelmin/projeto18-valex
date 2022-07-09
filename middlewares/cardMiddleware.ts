@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import dayjs from 'dayjs';
+import bcrypt from 'bcrypt';
+
 import {
     findById,
     findByTypeAndEmployeeId,
@@ -84,6 +86,40 @@ export function checkCardIsActive(
     next();
 }
 
+export function checkCardIsBlocked(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    const { card } = res.locals;
+
+    if (card.isBlocked) {
+        throw {
+            status: 412,
+            message: `Card is already blocked`,
+        };
+    }
+
+    next();
+}
+
+export function checkCardIsUnblocked(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    const { card } = res.locals;
+
+    if (!card.isBlocked) {
+        throw {
+            status: 412,
+            message: `Card is already unlocked`,
+        };
+    }
+
+    next();
+}
+
 export function validateCardCVC(
     req: Request,
     res: Response,
@@ -96,6 +132,24 @@ export function validateCardCVC(
         throw {
             status: 401,
             message: `Wrong security code`,
+        };
+    }
+
+    next();
+}
+
+export function validateCardPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    const card: { password: string } = res.locals.card;
+    const { password }: { password: string } = req.body;
+
+    if (!bcrypt.compareSync(password, card.password)) {
+        throw {
+            status: 401,
+            message: `Wrong password`,
         };
     }
 

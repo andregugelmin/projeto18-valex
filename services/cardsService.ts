@@ -51,3 +51,10 @@ export async function updatePasswordCard(cardId: number, password: string) {
     };
     await update(cardId, encryptedPasswordData);
 }
+
+export async function updateBlockCard(cardId: number, isBlocking: boolean) {
+    const blockData: CardUpdateData = {
+        isBlocked: isBlocking,
+    };
+    await update(cardId, blockData);
+}
