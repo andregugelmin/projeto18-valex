@@ -8,7 +8,6 @@ export function encryptCVC(cvc: string) {
 }
 
 export function decryptCVC(encriptedCvc: string) {
-    console.log('chegou');
     const decryptedCVC = cryptr.decrypt(encriptedCvc);
     return decryptedCVC;
 }

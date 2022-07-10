@@ -6,6 +6,8 @@ import {
     TransactionTypes,
     update,
 } from '../repositories/cardRepository.js';
+import { findByCardId as findByCardIdRecharge } from '../repositories/rechargeRepository.js';
+import { findByCardId as findByCardIdPayment } from '../repositories/paymentRepository.js';
 import { encryptCVC, encryptPassword } from '../utils/encryptionUtils.js';
 import {
     formattedEmployeeName,
@@ -57,4 +59,35 @@ export async function updateBlockCard(cardId: number, isBlocking: boolean) {
         isBlocked: isBlocking,
     };
     await update(cardId, blockData);
+}
+
+export async function getCardRecharges(cardId: number) {
+    const cardRecharges = await findByCardIdRecharge(cardId);
+    return cardRecharges;
+}
+
+export async function getCardPayments(cardId: number) {
+    const cardPayments = await findByCardIdPayment(cardId);
+    return cardPayments;
+}
+
+export async function getCardBalance(cardId: number) {
+    const cardRecharges = await getCardRecharges(cardId);
+    const cardPayments = await getCardPayments(cardId);
+    let rechargeAmount: number = 0;
+    let paymentAmount: number = 0;
+
+    if (cardRecharges.length > 0) {
+        cardRecharges.forEach((element) => {
+            rechargeAmount += element.amount;
+        });
+    }
+
+    if (cardPayments.length > 0) {
+        cardPayments.forEach((element) => {
+            paymentAmount += element.amount;
+        });
+    }
+
+    return rechargeAmount - paymentAmount;
 }

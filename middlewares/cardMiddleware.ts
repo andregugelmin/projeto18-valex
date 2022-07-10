@@ -7,7 +7,7 @@ import {
     findByTypeAndEmployeeId,
     TransactionTypes,
 } from '../repositories/cardRepository.js';
-import { expirationDateObj } from '../services/cardsService.js';
+import { expirationDateObj, getCardBalance } from '../services/cardsService.js';
 import { decryptCVC } from '../utils/encryptionUtils.js';
 
 export async function checkEmployeeHasCard(
@@ -86,6 +86,23 @@ export function checkCardIsActive(
     next();
 }
 
+export function checkCardIsInactive(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    const { card } = res.locals;
+
+    if (!card.password) {
+        throw {
+            status: 412,
+            message: `Card is not active`,
+        };
+    }
+
+    next();
+}
+
 export function checkCardIsBlocked(
     req: Request,
     res: Response,
@@ -96,7 +113,7 @@ export function checkCardIsBlocked(
     if (card.isBlocked) {
         throw {
             status: 412,
-            message: `Card is already blocked`,
+            message: `Card is blocked`,
         };
     }
 
@@ -113,7 +130,7 @@ export function checkCardIsUnblocked(
     if (!card.isBlocked) {
         throw {
             status: 412,
-            message: `Card is already unlocked`,
+            message: `Card is unlocked`,
         };
     }
 
@@ -150,6 +167,25 @@ export function validateCardPassword(
         throw {
             status: 401,
             message: `Wrong password`,
+        };
+    }
+
+    next();
+}
+
+export async function checkCardBalance(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    const { cardId, purchaseAmount } = req.body;
+
+    const cardBalance: number = await getCardBalance(cardId);
+
+    if (cardBalance - purchaseAmount < 0) {
+        throw {
+            status: 400,
+            message: `Card balance not sufficient for payment`,
         };
     }
 
