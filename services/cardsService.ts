@@ -17,14 +17,15 @@ import {
 export async function insertCardInDatabase(
     employeeId: number,
     employeeName: string,
-    cardType: TransactionTypes
+    cardType: TransactionTypes,
+    cardCVC: string
 ) {
     const cardholderName = formattedEmployeeName(employeeName);
     const expirationDate = formattedExpirationDate();
     const cardNumber: string = faker.finance.creditCardNumber(
         '####-####-####-####'
     );
-    const securityCode = encryptCVC(faker.finance.creditCardCVV());
+    const securityCode = encryptCVC(cardCVC);
     const type = cardType;
 
     await insert({

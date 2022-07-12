@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { faker } from '@faker-js/faker';
 import { TransactionTypes } from '../repositories/cardRepository.js';
 import {
     insertCardInDatabase,
@@ -9,10 +10,15 @@ import {
 export async function createCard(req: Request, res: Response) {
     const { employee } = res.locals;
     const cardType: TransactionTypes = req.body.cardType;
+    const cardCVC = faker.finance.creditCardCVV();
+    await insertCardInDatabase(
+        employee.id,
+        employee.fullName,
+        cardType,
+        cardCVC
+    );
 
-    await insertCardInDatabase(employee.id, employee.fullName, cardType);
-
-    res.sendStatus(201);
+    res.status(201).send({ cardCVC });
 }
 
 export async function activateCard(req: Request, res: Response) {
