@@ -1,4 +1,4 @@
-# Valex
+# projeto18-valex
 
 <p align="center">
   <a href="https://github.com/andregugelmin/projeto18-valex">
@@ -6,7 +6,7 @@
   </a>
 
   <h3 align="center">
-    projeto18-valex
+    Valex
   </h3>
 </p>
 
