@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/andregugelmin/projeto18-valex">
-    <img src="./readme.png" alt="readme-logo" width="80" height="80">
+    <img src="https://notion-emojis.s3-us-west-2.amazonaws.com/prod/svg-twitter/1f355.svg" alt="readme-logo" width="80" height="80">
   </a>
 
   <h3 align="center">
